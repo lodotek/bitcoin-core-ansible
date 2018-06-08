@@ -1,0 +1,15 @@
+---
+# defaults file for bitcoin-core
+bitcoind_extra_options: ""
+bitcoind_user: bitcoin
+bitcoind_group: bitcoin
+bitcoind_max_mempool: 300
+bitcoind_max_dbcache: 300
+bitcoind_build_dir: /opt/bitcoind
+bitcoin_data_dir: /data/bitcoind
+bitcoind_memory_limit: 700000000
+bitcoind_docker_tag: "lodotek/bitcoind-container"
+bitcoind_docker_ingredients:
+ - Dockerfile
+ - entrypoint.sh
+ - setuidgid.inc

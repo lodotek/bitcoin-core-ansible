@@ -1,0 +1,48 @@
+---
+- service:
+   name: docker
+   state: started
+- file:
+    path: "{{ bitcoind_build_dir }}"
+    state: directory
+    recurse: yes
+- copy:
+    src: "{{ item }}"
+    dest: "{{ bitcoind_build_dir }}"
+  with_items: "{{ bitcoind_docker_ingredients }}"
+- group:
+    name: "{{ bitcoind_group }}"
+    gid: "{{ bitcoind_gid }}"
+- user:
+    name: "{{ bitcoind_user }}"
+    uid: "{{ bitcoind_uid }}"
+    group: "{{ bitcoind_group }}"
+- file:
+    path: "{{ bitcoind_data_dir }}"
+    state: directory
+    owner: "{{ bitcoind_user }}"
+    group: docker
+- shell: "docker build -t {{ bitcoind_docker_tag }} ."
+  args:
+    chdir: "{{ bitcoind_build_dir }}"
+# run
+- docker:
+    image: "{{ bitcoind_docker_tag }}"
+    name: bitcoind
+    state: reloaded
+    restart_policy: unless-stopped
+    pull: missing
+    ports:
+      8333:8333
+    env:
+      BITCOIN_MAX_MEM_POOL: "{{ bitcoind_max_mempool }}"
+      BITCOIN_MAX_DBCACHE: "{{ bitcoind_max_dbcache }}"
+      DOCKER_USER: "{{ bitcoind_user }}"
+      DOCKER_USER_ID: "{{ bitcoind_uid }}"
+      DOCKER_GROUP: "{{ bitcoind_group }}"
+      DOCKER_GROUP_ID: "{{ bitcoind_gid }}"
+      BITCOIN_DATA: /data/bitcoind
+    volumes:
+      - "{{ bitcoind_data_dir }}:/data/bitcoind"
+    memory_limit: "{{ bitcoind_memory_limit }}"
+    command: "bitcoind -printtoconsole {{ bitcoind_extra_options }}"
