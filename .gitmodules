@@ -1,0 +1,4 @@
+[submodule "files"]
+	path = files
+	url = git@bitbucket.org:lodotek/bitcoind-container.git
+	branch = master
